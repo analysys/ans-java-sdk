@@ -5,12 +5,12 @@ package cn.com.analysys.javasdk;
  */
 public class AnalysysException extends Exception {
 
-	public AnalysysException(String message) {
-		super(message);
-	}
+    public AnalysysException(String message) {
+        super(message);
+    }
 
-	public AnalysysException(Throwable error) {
-		super(error);
-	}
+    public AnalysysException(Throwable error) {
+        super(error);
+    }
 
 }

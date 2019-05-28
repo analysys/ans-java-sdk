@@ -1,22 +1,22 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>cn.com.analysys</groupId>
-	<name>javasdk</name>
-	<artifactId>javasdk</artifactId>
-	<version>4.0.8</version>
-	<packaging>jar</packaging>
-	<description>Analysys Java SDK</description>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>cn.com.analysys</groupId>
+    <name>javasdk</name>
+    <artifactId>javasdk</artifactId>
+    <version>4.0.9</version>
+    <packaging>jar</packaging>
+    <description>Analysys Java SDK</description>
     <url>https://ark.analysys.cn</url>
-    
+
     <licenses>
         <license>
             <name>The GPL Software License, Version 3.0</name>
             <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
         </license>
     </licenses>
-    
+
     <developers>
         <developer>
             <name>analysys</name>
@@ -30,8 +30,8 @@
         <developerConnection>scm:git@github.com:analysys/argo-sdk-java.git</developerConnection>
         <url>git@github.com:analysys/argo-sdk-java.git</url>
     </scm>
-	
-	<properties>
+
+    <properties>
         <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>utf-8</project.reporting.outputEncoding>
     </properties>
@@ -85,11 +85,11 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.0.0</version>
                 <configuration>
-					<aggregate>true</aggregate>
-					<charset>UTF-8</charset>
-					<encoding>UTF-8</encoding>
-					<docencoding>UTF-8</docencoding>
-				</configuration>
+                    <aggregate>true</aggregate>
+                    <charset>UTF-8</charset>
+                    <encoding>UTF-8</encoding>
+                    <docencoding>UTF-8</docencoding>
+                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -122,7 +122,7 @@
                     <archive>
                         <manifest>
                             <mainClass></mainClass>
-                            </manifest>
+                        </manifest>
                     </archive>
                 </configuration>
                 <executions>
