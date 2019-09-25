@@ -7,7 +7,7 @@ This is the official Java SDK for Argo.
 
 ## Learn More
 
-please visit [more](https://ark.analysys.cn/docs/sdk-java.html)
+please visit [more](https://docs.analysys.cn/ark/integration/sdk/java)
 
 
 ## License
