@@ -5,7 +5,7 @@
     <groupId>cn.com.analysys</groupId>
     <name>javasdk</name>
     <artifactId>javasdk</artifactId>
-    <version>4.0.9</version>
+    <version>4.1.0</version>
     <packaging>jar</packaging>
     <description>Analysys Java SDK</description>
     <url>https://ark.analysys.cn</url>
