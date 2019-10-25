@@ -3,7 +3,7 @@
 
 ========
 
-This is the official Java SDK for Argo.
+This is the official Java SDK for Analysys.
 
 ## Learn More
 
