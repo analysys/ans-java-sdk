@@ -3,7 +3,7 @@
 
 ========
 
-This is the official Java SDK for Analysys.
+This is the official Java SDK for Analysys
 
 ## Learn More
 
