@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Analysys Java SDK
  */
 public class AnalysysJavaSdk {
-	private final String SDK_VERSION = "4.1.0";
+	private final String SDK_VERSION = "4.1.1";
 	private final Collecter collecter;
 	private final String appId;
 	private final Map<String, Object> egBaseProperties;
