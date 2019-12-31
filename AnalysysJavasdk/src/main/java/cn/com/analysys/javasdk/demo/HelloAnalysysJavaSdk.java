@@ -12,12 +12,13 @@ import cn.com.analysys.javasdk.SyncCollecter;
 
 public class HelloAnalysysJavaSdk {
 	private final static String APP_ID = "1234";
-	private final static String ANALYSYS_SERVICE_URL = "http://192.168.220.167:8089";
+	private final static String ANALYSYS_SERVICE_URL = "http://127.0.0.1:8089";
 	private final static String TEST_IP = "112.112.112.112";
 	
 	public static void main(String[] args) {
 		AnalysysJavaSdk analysys = new AnalysysJavaSdk(new SyncCollecter(ANALYSYS_SERVICE_URL), APP_ID);
 		//AnalysysJavaSdk analysys = new AnalysysJavaSdk(new BatchCollecter(ANALYSYS_SERVICE_URL), APP_ID);
+		//AnalysysJavaSdk analysys = new AnalysysJavaSdk(new LogCollecter("/tmp/data"), APP_ID);
 		try {
 		    String distinctId = "1234567890987654321";
 		    String platForm = "android"; //Android平台
