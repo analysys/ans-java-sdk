@@ -163,15 +163,18 @@ public class ValidHandle {
 		    	throw new AnalysysException(String.format("original_id %s is too long, max length is %s.", properties.get(originalId), idLength));
 		    }
 		}
-		
-		if (eventName == null || eventName.length() == 0) {
-			System.out.println(String.format("EventName %s is empty.", eventName));
+		if (eventName != null) {
+			if (eventName.length() == 0) {
+				System.out.println("EventName is empty.");
 		}
 		if (eventName.length() > eventNameLen) {
 			System.out.println(String.format("EventName %s is too long, max length is %s.", eventName, eventNameLen));
 		}
 		if (!(KEY_PATTERN.matcher(eventName).matches())) {
 			System.out.println(String.format("EventName %s is invalid.", eventName));
+		}
+		} else {
+			System.out.println("EventName is null.");
 		}
 		checkParam(eventName, properties);
 	}
