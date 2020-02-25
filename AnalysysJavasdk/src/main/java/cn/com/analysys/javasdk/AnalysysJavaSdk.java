@@ -35,6 +35,9 @@ public class AnalysysJavaSdk {
 	 */
 	public AnalysysJavaSdk(Collecter collecter, String appId, Boolean autoDelParam){
 		this.collecter = collecter;
+		if(appId == null || appId.trim().length() == 0){
+			throw new RuntimeException("appKey is empty");
+		}
 		this.appId = appId;
 		this.egBaseProperties = new HashMap<String, Object>(3);
 		this.xcontextSuperProperties = new ConcurrentHashMap<String, Object>();
@@ -302,7 +305,7 @@ public class AnalysysJavaSdk {
 		eventMap.put("appid", appId);
 		Map<String, Object> newProperties = new HashMap<String, Object>(16);
 		String profile = "$profile";
-		if(!eventName.startsWith(profile) && !eventName.startsWith(EventName.ALIAS.getValue())){
+		if(!(eventName != null && (eventName.startsWith(profile) || eventName.startsWith(EventName.ALIAS.getValue())))){
 			newProperties.putAll(this.xcontextSuperProperties);
 		}
 		newProperties.put("$debug", debugMode);
@@ -318,8 +321,8 @@ public class AnalysysJavaSdk {
 		eventMap.put("xcontext", newProperties);
 		this.collecter.debug(isDebug());
 		boolean ret = this.collecter.send(eventMap);
-		if(eventName.startsWith(profile) && isDebug() && ret){
-			System.out.println(String.format("%s success.", eventName.substring(1)));
+		if(eventName != null && eventName.startsWith(profile) && isDebug() && ret){
+			System.out.println(String.format("%s success.", eventName));
 		}
 	}
 	
