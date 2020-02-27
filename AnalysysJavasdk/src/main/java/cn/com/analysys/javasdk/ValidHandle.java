@@ -47,8 +47,10 @@ public class ValidHandle {
 					continue;
 				}
 			}
-			if(property.getValue() == null)
+			if(property.getValue() == null){
+				System.out.println(String.format("Warn: The property %s value is null.", property.getKey()));
 				continue;
+			}
 			try {
 				if(property != null)
 					checkParamImpl(eventName, property);
@@ -70,6 +72,7 @@ public class ValidHandle {
 		int valueListLen = 100;
 		String piEventName = "$profile_increment";
 		String paEventName = "$profile_append";
+		String puEventName = "$profile_unset";
 		//key约束 符合java命名规则： 开头约束:字母或者$ 字符类型:大小写字母、数字、下划线和 $ 最大长度125字符
 		if (property.getKey().length() > keyLength) {
 			System.out.println(String.format("Warn: The property key %s is too long, max length is %s.", property.getKey(), keyLength));
@@ -85,7 +88,9 @@ public class ValidHandle {
 			System.out.println(String.format("Warn: The property %s is not Number, String, Boolean, List<String>.", property.getKey()));
 		}
 		if (property.getValue() instanceof String && property.getValue().toString().length() == 0) {
+			if (!puEventName.equals(eventName)) {
 			System.out.println(String.format("Warn: The property %s String value is null or empty.", property.getKey()));
+		}
 		}
 		if (property.getValue() instanceof String && property.getValue().toString().length() > valueWarnLength) {
 			System.out.println(String.format("Warn: The property %s String value is too long, max length is %s.", property.getKey(), valueWarnLength));
