@@ -49,7 +49,7 @@ public class AnalysysEncoder {
             gzip.write(str.getBytes(encoding));
             gzip.close();
         } catch (IOException e) {
-        	System.out.println(e);
+        	AnalysysLogger.print(String.format("AnalysysEncoder.compress error: %s", e.getMessage()));
         }
         return out.toByteArray();
 	}
@@ -84,7 +84,7 @@ public class AnalysysEncoder {
 			base64Codep = new String(AnalysysEncoder.decode(base64str));
 			return base64Codep;
 		} catch (UnsupportedEncodingException e) {
-			System.out.println(e);
+			AnalysysLogger.print(String.format("AnalysysEncoder.ozBase64ToStr error: %s", e.getMessage()));
 			return null;
 		}
 	}
