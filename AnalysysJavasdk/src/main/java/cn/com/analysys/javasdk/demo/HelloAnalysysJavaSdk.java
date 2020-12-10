@@ -5,27 +5,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.com.analysys.javasdk.AnalysysContext;
 import cn.com.analysys.javasdk.AnalysysException;
 import cn.com.analysys.javasdk.AnalysysJavaSdk;
+import cn.com.analysys.javasdk.AnalysysJavaSdkLog;
 import cn.com.analysys.javasdk.DEBUG;
 import cn.com.analysys.javasdk.SyncCollecter;
 
 public class HelloAnalysysJavaSdk {
 	private final static String APP_ID = "1234";
 	private final static String ANALYSYS_SERVICE_URL = "http://127.0.0.1:8089";
-	private final static String TEST_IP = "112.112.112.112";
 	
 	public static void main(String[] args) {
 		AnalysysJavaSdk analysys = new AnalysysJavaSdk(new SyncCollecter(ANALYSYS_SERVICE_URL), APP_ID);
 		//AnalysysJavaSdk analysys = new AnalysysJavaSdk(new BatchCollecter(ANALYSYS_SERVICE_URL), APP_ID);
 		//AnalysysJavaSdk analysys = new AnalysysJavaSdk(new LogCollecter("/tmp/data"), APP_ID);
 		try {
+		    analysys.setDebugMode(DEBUG.CLOSE); //设置debug模式
+		    /*AnalysysContext.setLogger(new AnalysysJavaSdkLog() { //设置全局日志打印方式, 不设置的话默认通过System.out.println控制台打印方式(>=v4.1.2)
+				@Override
+				public void print(String msg) {
+					System.out.println("xxx: " + msg); // xxx可以为自定义关键字; 或者使用项目自身日志组件打印,例如:logger.info(msg);
+				}
+			});*/
+		    
 		    String distinctId = "1234567890987654321";
 		    String platForm = "android"; //Android平台
-		    analysys.setDebugMode(DEBUG.CLOSE); //设置debug模式
 		    //浏览商品
 		    Map<String, Object> trackPropertie = new HashMap<String, Object>();
-		    trackPropertie.put("$ip", TEST_IP); //IP地址
 		    List<String> bookList = new ArrayList<String>();
 		    bookList.add("Thinking in Java");
 		    trackPropertie.put("productName", bookList);  //商品列表
@@ -72,7 +79,6 @@ public class HelloAnalysysJavaSdk {
 		    
 		    //再次浏览商品
 		    trackPropertie.clear();
-		    trackPropertie.put("$ip", TEST_IP); //IP地址
 		    List<String> abookList = new ArrayList<String>();
 		    abookList.add("Thinking in Java");
 		    trackPropertie.put("productName", bookList);  //商品列表

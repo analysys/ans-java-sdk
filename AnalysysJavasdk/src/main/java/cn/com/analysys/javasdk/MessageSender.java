@@ -14,49 +14,43 @@ import org.apache.http.util.EntityUtils;
  * @author admin
  */
 public class MessageSender {
+	private final CloseableHttpClient httpclient;
 	private final Boolean isEncode;
 	private final String serverUrl;
-	private final Map<String, String> egHeaderParams;
-	private final String jsonData;
+	
+	/**
+	 * 构造方法
+	 * @param serverUrl 数据接收服务地址
+	 */
+	public MessageSender(String serverUrl){
+		this(serverUrl, true);
+	}
     
 	/**
 	 * 构造方法
 	 * @param serverUrl 数据接收服务地址
-	 * @param egHeaderParams HTTP消息头信息
-	 * @param jsonData HTTP消息体
-	 */
-	public MessageSender(String serverUrl, Map<String, String> egHeaderParams, String jsonData){
-		this(serverUrl, egHeaderParams, jsonData, true);
-	}
-	
-	/**
-	 * 构造方法
-	 * @param serverUrl 数据接收服务地址
-	 * @param egHeaderParams HTTP消息头信息
-	 * @param jsonData HTTP消息体
 	 * @param isEncode 是否对消息体进行编码,默认true
 	 */
-	public MessageSender(String serverUrl, Map<String, String> egHeaderParams, String jsonData, Boolean isEncode){
+	public MessageSender(String serverUrl, Boolean isEncode){
 		this.serverUrl = serverUrl;
-		this.egHeaderParams = egHeaderParams;
-		this.jsonData = jsonData;
 		this.isEncode = isEncode;
+		this.httpclient = getHttpClient();
 	}
 	
 	/**
 	 * 发送消息至接收服务器
+	 * @param egHeaderParams HTTP消息头信息
+	 * @param jsonData HTTP消息体
 	 * @return HttpResponse
 	 * @throws Exception Exception
 	 */
-	public String send() throws Exception {
-		CloseableHttpClient httpclient = null;
+	public String send(Map<String, String> egHeaderParams, String jsonData) throws Exception {
 		CloseableHttpResponse response = null;
 		try {
-			httpclient = getHttpClient();
 			HttpPost egHttpPost = new HttpPost(this.serverUrl);
 			egHttpPost.addHeader("User-Agent", "Analysys Java SDK");
-			if (this.egHeaderParams != null) {
-				for (Map.Entry<String, String> entry : this.egHeaderParams.entrySet()) {
+			if (egHeaderParams != null) {
+				for (Map.Entry<String, String> entry : egHeaderParams.entrySet()) {
 					egHttpPost.addHeader(entry.getKey(), entry.getValue());
 				}
 			}
@@ -78,34 +72,43 @@ public class MessageSender {
 			try {
 				message = AnalysysEncoder.uncompress(AnalysysEncoder.decode(message));
 			} catch (Exception e) {}
-			printLog(message, jsonData);
-			if (httpStatusCode >= minCode && httpStatusCode < maxCode) {
-				if(message != null && message.contains("\"code\":200")){
-					return message;
-				} else {
-					throw new AnalysysException(message);
-				}
-			} else {
-				throw new AnalysysException(message);
+			if(message != null && !success(message)){
+				AnalysysLogger.print("Data Upload Fails: " + jsonData);
+				AnalysysLogger.print("Data Upload FailsReason: " + message);
 			}
-		} catch (Exception e) {
-			throw e;
+			if (httpStatusCode >= minCode && httpStatusCode < maxCode) {
+				if(message != null && success(message)){
+					return message;
+				}
+			}
+			return null;
+		} catch (Throwable e) {
+			AnalysysLogger.print("Data Upload Fail: " + jsonData);
+			AnalysysLogger.print("Data Upload FailReason: " + e.getMessage());
+			return null;
 		} finally {
 			if(response != null)
-				response.close();
-			if(httpclient != null)
-				httpclient.close();
+				try {
+					response.close();
+					response = null;
+				} catch (Exception e2) {}
 		}
 	}
 	
-	private void printLog(String message, String jsonData) {
-		if(message != null && !message.contains("\"code\":200")){
-			System.out.println("Data Upload Fail: " + jsonData);
+	private boolean success(String message){
+		return message.toLowerCase().replaceAll(" ", "").contains("\"code\":200");
+	}
+	
+	private static class SingletonClassInstance {
+		private static CloseableHttpClient httpclient = HttpClients.createDefault();
+		
+		public static CloseableHttpClient getCloseableHttpClient(){
+			return httpclient;
 		}
-    }
+	}
 	
     private CloseableHttpClient getHttpClient() {
-    	return HttpClients.createDefault();
+    	return SingletonClassInstance.getCloseableHttpClient();
     }
     
     private RequestConfig getHttpConfig() {
