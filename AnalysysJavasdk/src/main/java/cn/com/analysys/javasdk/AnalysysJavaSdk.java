@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Analysys Java SDK
  */
 public class AnalysysJavaSdk {
-	private final String SDK_VERSION = "4.1.1";
+	private final String SDK_VERSION = "4.1.2";
 	private final Collecter collecter;
 	private final String appId;
 	private final Map<String, Object> egBaseProperties;
@@ -49,8 +49,9 @@ public class AnalysysJavaSdk {
 	 * Debug模式
 	 * @param debug Debug级别
 	 */
-	public void setDebugMode(DEBUG debug) {
+	public boolean setDebugMode(DEBUG debug) {
 		this.debugMode = debug.getCode();
+		return true;
 	}
 	
 	private boolean isDebug(){
@@ -70,7 +71,7 @@ public class AnalysysJavaSdk {
 	 * 注册超级属性,注册后每次发送的消息体中都包含该属性值
 	 * @param params 属性
 	 */
-	public void registerSuperProperties(Map<String, Object> params) throws AnalysysException {
+	public boolean registerSuperProperties(Map<String, Object> params) throws AnalysysException {
 		int num = 100;
 		if(params.entrySet().size() > num){
 			throw new AnalysysException("Too many super properties. max number is 100.");
@@ -80,21 +81,23 @@ public class AnalysysJavaSdk {
 			this.xcontextSuperProperties.put(key, params.get(key));
 		}
 		if(isDebug()){
-			System.out.println("registerSuperProperties success");
+			AnalysysLogger.print("registerSuperProperties success");
 		}
+		return true;
 	}
 	
 	/**
 	 * 移除超级属性
 	 * @param key 属性key
 	 */
-	public void unRegisterSuperProperty(String key) {
+	public boolean unRegisterSuperProperty(String key) {
 		if(this.xcontextSuperProperties.containsKey(key)){
 			this.xcontextSuperProperties.remove(key);
 		}
 		if(isDebug()){
-			System.out.println(String.format("unRegisterSuperProperty %s success", key));
+			AnalysysLogger.print(String.format("unRegisterSuperProperty %s success", key));
 		}
+		return true;
 	}
 	
 	/**
@@ -120,18 +123,20 @@ public class AnalysysJavaSdk {
 	/**
 	 * 清除超级属性
 	 */
-	public void clearSuperProperties(){
+	public boolean clearSuperProperties(){
 		this.xcontextSuperProperties.clear();
 		if(isDebug()){
-			System.out.println("clearSuperProperties success");
+			AnalysysLogger.print("clearSuperProperties success");
 		}
+		return true;
 	}
 	
 	/**
 	 * 立即发送所有收集的信息到服务器
 	 */
-	public void flush() {
+	public boolean flush() {
 	    this.collecter.flush();
+	    return true;
 	}
 	
 	public void shutdown() {
@@ -146,11 +151,11 @@ public class AnalysysJavaSdk {
 	 * @param platform 平台类型
 	 * @throws AnalysysException 自定义异常
 	 */
-	public void profileSet(String distinctId, boolean isLogin, Map<String, Object> properties, String platform) throws AnalysysException {
-		upload(distinctId, isLogin, EventName.P_SET.getValue(), properties, platform, null);
+	public boolean profileSet(String distinctId, boolean isLogin, Map<String, Object> properties, String platform) throws AnalysysException {
+		return upload(distinctId, isLogin, EventName.P_SET.getValue(), properties, platform, null);
 	}
-	public void profileSet(String distinctId, boolean isLogin, Map<String, Object> properties, String platform, String xwhen) throws AnalysysException {
-		upload(distinctId, isLogin, EventName.P_SET.getValue(), properties, platform, xwhen);
+	public boolean profileSet(String distinctId, boolean isLogin, Map<String, Object> properties, String platform, String xwhen) throws AnalysysException {
+		return upload(distinctId, isLogin, EventName.P_SET.getValue(), properties, platform, xwhen);
 	}
 	
 	/**
@@ -161,11 +166,11 @@ public class AnalysysJavaSdk {
 	 * @param platform 平台类型
 	 * @throws AnalysysException 自定义异常
 	 */
-	public void profileSetOnce(String distinctId, boolean isLogin, Map<String, Object> properties, String platform) throws AnalysysException {
-		upload(distinctId, isLogin, EventName.P_SET_ONE.getValue(), properties, platform, null);
+	public boolean profileSetOnce(String distinctId, boolean isLogin, Map<String, Object> properties, String platform) throws AnalysysException {
+		return upload(distinctId, isLogin, EventName.P_SET_ONE.getValue(), properties, platform, null);
 	}
-	public void profileSetOnce(String distinctId, boolean isLogin, Map<String, Object> properties, String platform, String xwhen) throws AnalysysException {
-		upload(distinctId, isLogin, EventName.P_SET_ONE.getValue(), properties, platform, xwhen);
+	public boolean profileSetOnce(String distinctId, boolean isLogin, Map<String, Object> properties, String platform, String xwhen) throws AnalysysException {
+		return upload(distinctId, isLogin, EventName.P_SET_ONE.getValue(), properties, platform, xwhen);
 	}
 	
 	/**
@@ -176,11 +181,11 @@ public class AnalysysJavaSdk {
 	 * @param platform 平台类型
 	 * @throws AnalysysException 自定义异常
 	 */
-	public void profileIncrement(String distinctId, boolean isLogin, Map<String, Object> properties, String platform) throws AnalysysException {
-		upload(distinctId, isLogin, EventName.P_IN.getValue(), properties, platform, null);
+	public boolean profileIncrement(String distinctId, boolean isLogin, Map<String, Object> properties, String platform) throws AnalysysException {
+		return upload(distinctId, isLogin, EventName.P_IN.getValue(), properties, platform, null);
 	}
-	public void profileIncrement(String distinctId, boolean isLogin, Map<String, Object> properties, String platform, String xwhen) throws AnalysysException {
-		upload(distinctId, isLogin, EventName.P_IN.getValue(), properties, platform, xwhen);
+	public boolean profileIncrement(String distinctId, boolean isLogin, Map<String, Object> properties, String platform, String xwhen) throws AnalysysException {
+		return upload(distinctId, isLogin, EventName.P_IN.getValue(), properties, platform, xwhen);
 	}
 	
 	/**
@@ -191,11 +196,11 @@ public class AnalysysJavaSdk {
 	 * @param platform 平台类型
 	 * @throws AnalysysException 自定义异常
 	 */
-	public void profileAppend(String distinctId, boolean isLogin, Map<String, Object> properties, String platform) throws AnalysysException {
-		upload(distinctId, isLogin, EventName.P_APP.getValue(), properties, platform, null);
+	public boolean profileAppend(String distinctId, boolean isLogin, Map<String, Object> properties, String platform) throws AnalysysException {
+		return upload(distinctId, isLogin, EventName.P_APP.getValue(), properties, platform, null);
 	}
-	public void profileAppend(String distinctId, boolean isLogin, Map<String, Object> properties, String platform, String xwhen) throws AnalysysException {
-		upload(distinctId, isLogin, EventName.P_APP.getValue(), properties, platform, xwhen);
+	public boolean profileAppend(String distinctId, boolean isLogin, Map<String, Object> properties, String platform, String xwhen) throws AnalysysException {
+		return upload(distinctId, isLogin, EventName.P_APP.getValue(), properties, platform, xwhen);
 	}
 	
 	/**
@@ -206,15 +211,15 @@ public class AnalysysJavaSdk {
 	 * @param platform 平台类型
 	 * @throws AnalysysException 自定义异常
 	 */
-	public void profileUnSet(String distinctId, boolean isLogin, String property, String platform) throws AnalysysException {
+	public boolean profileUnSet(String distinctId, boolean isLogin, String property, String platform) throws AnalysysException {
 		Map<String, Object> properties = new HashMap<String, Object>(2);
 	    properties.put(property, "");
-		upload(distinctId, isLogin, EventName.P_UN.getValue(), properties, platform, null);
+	    return upload(distinctId, isLogin, EventName.P_UN.getValue(), properties, platform, null);
 	}
-	public void profileUnSet(String distinctId, boolean isLogin, String property, String platform, String xwhen) throws AnalysysException {
+	public boolean profileUnSet(String distinctId, boolean isLogin, String property, String platform, String xwhen) throws AnalysysException {
 		Map<String, Object> properties = new HashMap<String, Object>(2);
 	    properties.put(property, "");
-		upload(distinctId, isLogin, EventName.P_UN.getValue(), properties, platform, xwhen);
+	    return upload(distinctId, isLogin, EventName.P_UN.getValue(), properties, platform, xwhen);
 	}
 	
 	/**
@@ -224,11 +229,11 @@ public class AnalysysJavaSdk {
 	 * @param platform 平台类型
 	 * @throws AnalysysException 自定义异常
 	 */
-	public void profileDelete(String distinctId,  boolean isLogin, String platform) throws AnalysysException {
-		upload(distinctId, isLogin, EventName.P_DEL.getValue(), new HashMap<String, Object>(1), platform, null);
+	public boolean profileDelete(String distinctId,  boolean isLogin, String platform) throws AnalysysException {
+		return upload(distinctId, isLogin, EventName.P_DEL.getValue(), new HashMap<String, Object>(1), platform, null);
 	}
-	public void profileDelete(String distinctId,  boolean isLogin, String platform, String xwhen) throws AnalysysException {
-		upload(distinctId, isLogin, EventName.P_DEL.getValue(), new HashMap<String, Object>(1), platform, xwhen);
+	public boolean profileDelete(String distinctId,  boolean isLogin, String platform, String xwhen) throws AnalysysException {
+		return upload(distinctId, isLogin, EventName.P_DEL.getValue(), new HashMap<String, Object>(1), platform, xwhen);
 	}
 	
 	/**
@@ -238,15 +243,15 @@ public class AnalysysJavaSdk {
 	 * @param platform 平台类型
 	 * @throws AnalysysException 自定义异常
 	 */
-	public void alias(String aliasId, String distinctId, String platform) throws AnalysysException{
+	public boolean alias(String aliasId, String distinctId, String platform) throws AnalysysException{
 		Map<String, Object> param = new HashMap<String, Object>(2);
 		param.put("$original_id", distinctId);
-		upload(aliasId, true, EventName.ALIAS.getValue(), param, platform, null);
+		return upload(aliasId, true, EventName.ALIAS.getValue(), param, platform, null);
 	}
-	public void alias(String aliasId, String distinctId, String platform, String xwhen) throws AnalysysException{
+	public boolean alias(String aliasId, String distinctId, String platform, String xwhen) throws AnalysysException{
 		Map<String, Object> param = new HashMap<String, Object>(2);
 		param.put("$original_id", distinctId);
-		upload(aliasId, true, EventName.ALIAS.getValue(), param, platform, xwhen);
+		return upload(aliasId, true, EventName.ALIAS.getValue(), param, platform, xwhen);
 	}
 	
 	/**
@@ -258,11 +263,11 @@ public class AnalysysJavaSdk {
 	 * @param platform 平台类型
 	 * @throws AnalysysException 自定义异常
 	 */
-	public void track(String distinctId, boolean isLogin, String eventName, Map<String, Object> properties, String platform) throws AnalysysException {
-		upload(distinctId, isLogin, eventName, properties, platform, null);
+	public boolean track(String distinctId, boolean isLogin, String eventName, Map<String, Object> properties, String platform) throws AnalysysException {
+		return upload(distinctId, isLogin, eventName, properties, platform, null);
 	}
-	public void track(String distinctId, boolean isLogin, String eventName, Map<String, Object> properties, String platform, String xwhen) throws AnalysysException {
-		upload(distinctId, isLogin, eventName, properties, platform, xwhen);
+	public boolean track(String distinctId, boolean isLogin, String eventName, Map<String, Object> properties, String platform, String xwhen) throws AnalysysException {
+		return upload(distinctId, isLogin, eventName, properties, platform, xwhen);
 	}
 	
 	/**
@@ -275,7 +280,7 @@ public class AnalysysJavaSdk {
 	 * @param xwhen 时间戳
 	 * @throws AnalysysException 自定义异常
 	 */
-	private void upload(String distinctId, boolean isLogin, String eventName, Map<String, Object> properties, String platform, String xwhen) throws AnalysysException {
+	private boolean upload(String distinctId, boolean isLogin, String eventName, Map<String, Object> properties, String platform, String xwhen) throws AnalysysException {
 		HashMap<String, Object> targetProperties = new HashMap<String, Object>();
 		if(properties != null){
 			targetProperties.putAll(properties);
@@ -322,8 +327,9 @@ public class AnalysysJavaSdk {
 		this.collecter.debug(isDebug());
 		boolean ret = this.collecter.send(eventMap);
 		if(eventName != null && eventName.startsWith(profile) && isDebug() && ret){
-			System.out.println(String.format("%s success.", eventName));
+			AnalysysLogger.print(String.format("%s success.", eventName));
 		}
+		return ret;
 	}
 	
 	private String getPlatForm(String platform){
@@ -331,13 +337,13 @@ public class AnalysysJavaSdk {
     	if(PlatForm.WeChat.getValue().equalsIgnoreCase(platform)) {return PlatForm.WeChat.getValue();}
     	if(PlatForm.Android.getValue().equalsIgnoreCase(platform)) {return PlatForm.Android.getValue();}
     	if(PlatForm.iOS.getValue().equalsIgnoreCase(platform)) {return PlatForm.iOS.getValue();}
-    	System.out.println(String.format("Warning: param platform:%s  Your input are not:iOS/Android/JS/WeChat.", platform == null ? "" : platform));
+    	AnalysysLogger.print(String.format("Warning: param platform:%s  Your input are not:iOS/Android/JS/WeChat.", platform == null ? "" : platform));
     	if(PlatForm.Java.getValue().equalsIgnoreCase(platform)) {return PlatForm.Java.getValue();}
     	if(PlatForm.python.getValue().equalsIgnoreCase(platform)) {return PlatForm.python.getValue();}
     	if(PlatForm.Node.getValue().equalsIgnoreCase(platform)) {return PlatForm.Node.getValue();}
     	if(PlatForm.PHP.getValue().equalsIgnoreCase(platform)) {return PlatForm.PHP.getValue();}
     	if(platform == null || platform.trim().length() == 0) {
-    		System.out.println(String.format("Warning: param platform is empty, will use default value: %s.", PlatForm.Java.getValue()));
+    		AnalysysLogger.print(String.format("Warning: param platform is empty, will use default value: %s.", PlatForm.Java.getValue()));
     		return PlatForm.Java.getValue();
     	}
     	return platform;

@@ -41,14 +41,14 @@ public class ValidHandle {
 		for(Iterator<Map.Entry<String, Object>> it = properties.entrySet().iterator(); it.hasNext();){
 			Map.Entry<String, Object> property = it.next();
 			if(property.getKey() == null || property.getKey().toString().trim().length() == 0){
-				System.out.println(String.format("Warn: The property key is null or empty."));
+				AnalysysLogger.print(String.format("Warn: The property key is null or empty."));
 				if(property.getKey() == null){
 					it.remove();
 					continue;
 				}
 			}
 			if(property.getValue() == null){
-				System.out.println(String.format("Warn: The property %s value is null.", property.getKey()));
+				AnalysysLogger.print(String.format("Warn: The property %s value is null.", property.getKey()));
 				continue;
 			}
 			try {
@@ -57,7 +57,7 @@ public class ValidHandle {
 			} catch (AnalysysException e) {
 				if(delNotValidParam) {
 					it.remove();
-					System.out.println(e);
+					AnalysysLogger.print(e.getMessage());
 				} else {
 					throw e;
 				}
@@ -75,25 +75,25 @@ public class ValidHandle {
 		String puEventName = "$profile_unset";
 		//key约束 符合java命名规则： 开头约束:字母或者$ 字符类型:大小写字母、数字、下划线和 $ 最大长度125字符
 		if (property.getKey().length() > keyLength) {
-			System.out.println(String.format("Warn: The property key %s is too long, max length is %s.", property.getKey(), keyLength));
+			AnalysysLogger.print(String.format("Warn: The property key %s is too long, max length is %s.", property.getKey(), keyLength));
 		}
 		if (!(KEY_PATTERN_CONTEXT.matcher(property.getKey()).matches())) {
-			System.out.println(String.format("Warn: The property key %s is invalid.", property.getKey()));
+			AnalysysLogger.print(String.format("Warn: The property key %s is invalid.", property.getKey()));
 		}
 		if (!(property.getValue() instanceof Number) && 
 				!(property.getValue() instanceof Boolean) && 
 				!(property.getValue() instanceof String) && 
 				!property.getValue().getClass().isArray() && 
 		        !(property.getValue() instanceof List<?>)) {
-			System.out.println(String.format("Warn: The property %s is not Number, String, Boolean, List<String>.", property.getKey()));
+			AnalysysLogger.print(String.format("Warn: The property %s is not Number, String, Boolean, List<String>.", property.getKey()));
 		}
 		if (property.getValue() instanceof String && property.getValue().toString().length() == 0) {
 			if (!puEventName.equals(eventName)) {
-			System.out.println(String.format("Warn: The property %s String value is null or empty.", property.getKey()));
-		}
+				AnalysysLogger.print(String.format("Warn: The property %s String value is null or empty.", property.getKey()));
+			}
 		}
 		if (property.getValue() instanceof String && property.getValue().toString().length() > valueWarnLength) {
-			System.out.println(String.format("Warn: The property %s String value is too long, max length is %s.", property.getKey(), valueWarnLength));
+			AnalysysLogger.print(String.format("Warn: The property %s String value is too long, max length is %s.", property.getKey(), valueWarnLength));
 		}
 		if (property.getValue() instanceof String && property.getValue().toString().length() > valueLength) {
 			property.setValue(property.getValue().toString().substring(0, valueLength-1) + "$");
@@ -104,22 +104,22 @@ public class ValidHandle {
 			if(valueList.size() > valueListLen){
 				valueList = valueList.subList(0, valueListLen);
 				property.setValue(valueList);
-				System.out.println(String.format("Warn: The property %s, max number should be %s.", property.getKey(), valueListLen));
+				AnalysysLogger.print(String.format("Warn: The property %s, max number should be %s.", property.getKey(), valueListLen));
 			}
 			List<Object> list = (List<Object>)property.getValue();
 			if(list != null){
 				if(list.size() == 0){
-					System.out.println(String.format("Warn: The property %s is empty.", property.getKey()));
+					AnalysysLogger.print(String.format("Warn: The property %s is empty.", property.getKey()));
 				}
 				for (ListIterator<Object> iterator = list.listIterator(); iterator.hasNext();) {
 					Object vals = iterator.next();
 					if(vals == null)
 						continue;
 					if (!(vals instanceof String)) {
-						System.out.println(String.format("The property %s should be a list of String.", property.getKey()));
+						AnalysysLogger.print(String.format("The property %s should be a list of String.", property.getKey()));
 					}
 					if (((String) vals).length() > valueWarnLength) {
-						System.out.println(String.format("Warn: The property %s some value is too long, max length is %s.", property.getKey(), valueWarnLength));
+						AnalysysLogger.print(String.format("Warn: The property %s some value is too long, max length is %s.", property.getKey(), valueWarnLength));
 					}
 					if (((String) vals).length() > valueLength) {
 						iterator.set(vals.toString().substring(0, valueLength-1) + "$");
@@ -128,11 +128,11 @@ public class ValidHandle {
 			}
 		}
 		if (piEventName.equals(eventName) && !(property.getValue() instanceof Number)) {
-			System.out.println(String.format("The property value of %s should be a Number.", property.getKey()));
+			AnalysysLogger.print(String.format("The property value of %s should be a Number.", property.getKey()));
 		}
 		if (paEventName.equals(eventName)) {
 			if (!(property.getValue() instanceof List<?>) && !property.getValue().getClass().isArray()) {
-				System.out.println(String.format("The property value of %s should be a List<String>.", property.getKey()));
+				AnalysysLogger.print(String.format("The property value of %s should be a List<String>.", property.getKey()));
 			}
 		}
 		return true;
@@ -170,16 +170,16 @@ public class ValidHandle {
 		}
 		if (eventName != null) {
 			if (eventName.length() == 0) {
-				System.out.println("EventName is empty.");
-		}
-		if (eventName.length() > eventNameLen) {
-			System.out.println(String.format("EventName %s is too long, max length is %s.", eventName, eventNameLen));
-		}
-		if (!(KEY_PATTERN.matcher(eventName).matches())) {
-			System.out.println(String.format("EventName %s is invalid.", eventName));
-		}
+				AnalysysLogger.print("EventName is empty.");
+			}
+			if (eventName.length() > eventNameLen) {
+				AnalysysLogger.print(String.format("EventName %s is too long, max length is %s.", eventName, eventNameLen));
+			}
+			if (!(KEY_PATTERN.matcher(eventName).matches())) {
+				AnalysysLogger.print(String.format("EventName %s is invalid.", eventName));
+			}
 		} else {
-			System.out.println("EventName is null.");
+			AnalysysLogger.print("EventName is null.");
 		}
 		checkParam(eventName, properties);
 	}
@@ -188,6 +188,7 @@ public class ValidHandle {
 	    ObjectMapper jsonObjectMapper = new ObjectMapper();
 	    jsonObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	    jsonObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL); //允许空: ALWAYS
+	    //jsonObjectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,false); //在序列化时日期格式默认为 yyyy-MM-dd"T"HH:mm:ss.SSSZ
 	    return jsonObjectMapper;
 	}
 }

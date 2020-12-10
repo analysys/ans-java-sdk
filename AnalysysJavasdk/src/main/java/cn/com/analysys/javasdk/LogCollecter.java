@@ -90,7 +90,7 @@ public class LogCollecter implements Collecter {
 				}
 				lockstream = new FileOutputStream(lockFileName, true);
 			} catch (Exception e) {
-				System.out.println("Init LockStream Error: " + e);
+				AnalysysLogger.print("Init LockStream Error: " + e);
 			}
 		}
 	}
@@ -112,9 +112,10 @@ public class LogCollecter implements Collecter {
 					upload();
 				}
 			}
+			return true;
 		} catch (Exception e) {
 			try {
-				System.out.println("Log Data Error: " + serialize(egCollectMessage));
+				AnalysysLogger.print("Log Data Error: " + serialize(egCollectMessage));
 			} catch (Exception e1) {}
 		}
 		return false;
@@ -127,9 +128,9 @@ public class LogCollecter implements Collecter {
 				try {
 					dealLog(batchMsgList);
 				} catch (JsonProcessingException e) {
-					System.out.println("Json Serialize Error: " + e);
+					AnalysysLogger.print("Json Serialize Error: " + e);
 				} catch (IOException e) {
-					System.out.println("Json Serialize Error: " + e);
+					AnalysysLogger.print("Json Serialize Error: " + e);
 				} finally {
 					batchMsgList.clear();
 					if(this.async)
@@ -156,7 +157,7 @@ public class LogCollecter implements Collecter {
 			success = dealLog(jsonData);
 		}
 		if(!success)
-			System.out.println("Error After Retry " + RETRY_TIMES + " Times: " + serialize(batchMsgList));
+			AnalysysLogger.print("Error After Retry " + RETRY_TIMES + " Times: " + serialize(batchMsgList));
 	}
 	
 	private String serialize(Object obj) throws JsonGenerationException, JsonMappingException, IOException{
@@ -168,7 +169,7 @@ public class LogCollecter implements Collecter {
 		if(!success) {
 			int total = RETRY_TIMES;
 			while(!success && total-- > 0){
-				try { Thread.sleep(1000); } catch (Exception e1) {System.out.println(e1);}
+				try { Thread.sleep(1000); } catch (Exception e1) {AnalysysLogger.print(e1.getMessage());}
 				success = write(jsonData);
 			}
 		}
@@ -203,7 +204,7 @@ public class LogCollecter implements Collecter {
 			@Override
 			public void run() {
 				while(isListen){
-					try { Thread.sleep(1000); } catch (Exception e1) {System.out.println(e1);}
+					try { Thread.sleep(1000); } catch (Exception e1) {AnalysysLogger.print(e1.getMessage());}
 					if (sendTimer != -1 && (System.currentTimeMillis() - sendTimer >= batchSec)) {
 						try {
 							upload();
@@ -223,7 +224,7 @@ public class LogCollecter implements Collecter {
 				this.singleThread.awaitTermination(5, TimeUnit.SECONDS);
 			}
 		} catch (Exception e) {
-			System.out.println(e);
+			AnalysysLogger.print(e.getMessage());
 			this.singleThread = null;
 		}
 	}

@@ -1,6 +1,5 @@
 package cn.com.analysys.javasdk;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  * @author admin
  */
 public class SyncCollecter implements Collecter {
+	private final MessageSender sender;
 	private final String serverUrl;
 	private final boolean interrupt;
 	private boolean debug;
@@ -39,44 +39,34 @@ public class SyncCollecter implements Collecter {
 		}
 		this.serverUrl = serverUrl + "/up";
 		this.interrupt = interrupt;
+		this.sender = new MessageSender(this.serverUrl);
 	}
 
 	@Override
 	public boolean send(Map<String, Object> egCollectMessage) {
 		String jsonData = null;
+		List<Map<String, Object>> egMsgList = new ArrayList<Map<String, Object>>();
 		try {
-			List<Map<String, Object>> egMsgList = new ArrayList<Map<String, Object>>();
 			egMsgList.add(egCollectMessage);
 			jsonData = ValidHandle.getEgJsonMapper().writeValueAsString(egMsgList);
 			Map<String, String> headParam = new HashMap<String, String>(1);
 			if(debug){
-				System.out.println(String.format("Send message to server: %s \ndata: %s", serverUrl, jsonData));
+				AnalysysLogger.print(String.format("Send message to server: %s data: %s", serverUrl, jsonData));
 			}
-			String retMsg = new MessageSender(serverUrl, headParam, jsonData).send();
-			if(debug){
-				System.out.println(String.format("Send message success,response: %s", retMsg));
+			String retMsg = this.sender.send(headParam, jsonData);
+			if(debug && retMsg != null){
+				AnalysysLogger.print(String.format("Send message success,response: %s", retMsg));
 			}
-			return true;
+			return retMsg != null;
 		} catch (JsonProcessingException e) {
+			AnalysysLogger.print("Json Serialization Fail: " + egMsgList);
 			if(interrupt){
 				throw new RuntimeException("Json Serialize Error: ", e);
 			} else {
-				System.out.println("Json Serialize Error: " + e);
-			}
-		} catch (AnalysysException e) {
-			if(interrupt)
-				throw new RuntimeException("Upload Data Error: ", e);
-			else {
-				System.out.println("Upload Data Error: " + e);
-			}
-		} catch (IOException e) {
-			if(interrupt)
-				throw new RuntimeException("Connect Server Error: ", e);
-			else {
-				System.out.println("Connect Server Error: " + e);
+				AnalysysLogger.print("Json Serialize Error: " + e);
 			}
 		} catch (Exception e) {
-			System.out.println("Sync Send Data Error: " + e);
+			AnalysysLogger.print("Sync Send Data Error: " + e);
 		}
 		return false;
 	}

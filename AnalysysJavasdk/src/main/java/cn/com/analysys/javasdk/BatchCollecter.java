@@ -1,6 +1,5 @@
 package cn.com.analysys.javasdk;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  * @author admin
  */
 public class BatchCollecter implements Collecter {
+	private final MessageSender sender;
 	private long sendTimer = -1;
 	private boolean isListen = true;
 	private final String serverUrl;
@@ -85,6 +85,7 @@ public class BatchCollecter implements Collecter {
 		this.batchSec = batchSec * 1000;
 		this.batchMsgList = new ArrayList<Map<String, Object>>(this.batchNum);
 		this.singleThread = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+		this.sender = new MessageSender(this.serverUrl);
 		init();
 	}
 	
@@ -93,7 +94,7 @@ public class BatchCollecter implements Collecter {
 			@Override
 			public void run() {
 				while(isListen){
-					try { Thread.sleep(1000); } catch (Exception e1) {System.out.println(e1);}
+					try { Thread.sleep(1000); } catch (Exception e1) {AnalysysLogger.print(e1.getMessage());}
 					if (sendTimer != -1 && (System.currentTimeMillis() - sendTimer >= batchSec)) {
 						try {
 							upload();
@@ -128,35 +129,22 @@ public class BatchCollecter implements Collecter {
 					jsonData = ValidHandle.getEgJsonMapper().writeValueAsString(batchMsgList);
 					Map<String, String> headParam = new HashMap<String, String>(1);
 					if(debug){
-						System.out.println(String.format("Send message to server: %s \ndata: %s", serverUrl, jsonData));
+						AnalysysLogger.print(String.format("Send message to server: %s data: %s", serverUrl, jsonData));
 					}
-					String retMsg = new MessageSender(serverUrl, headParam, jsonData).send();
-					if(debug){
-						System.out.println(String.format("Send message success,response: %s", retMsg));
+					String retMsg = this.sender.send(headParam, jsonData);
+					if(debug && retMsg != null){
+						AnalysysLogger.print(String.format("Send message success,response: %s", retMsg));
 					}
 				} catch (JsonProcessingException e) {
+					AnalysysLogger.print("Json Serialization Fail: " + batchMsgList);
 					if(interrupt){
 						shutdown();
-						throw new RuntimeException("Json Serialize Error", e);
+						throw new RuntimeException("Json Serialize Error: ", e);
 					} else {
-						System.out.println("Json Serialize Error" + e);
-					}
-				} catch (AnalysysException e) {
-					if(interrupt){
-						shutdown();
-						throw new RuntimeException("Upload Data Error", e);
-					} else {
-						System.out.println("Upload Data Error" + e);
-					}
-				} catch (IOException e) {
-					if(interrupt){
-						shutdown();
-						throw new RuntimeException("Connect Server Error", e);
-					} else {
-						System.out.println("Connect Server Error" + e);
+						AnalysysLogger.print("Json Serialize Error: " + e);
 					}
 				} catch (Exception e) {
-					System.out.println("Send Data Error" + e);
+					AnalysysLogger.print("Batch Send Data Error: " + e);
 				} finally {
 					batchMsgList.clear();
 					resetTimer();
@@ -182,7 +170,7 @@ public class BatchCollecter implements Collecter {
 			this.singleThread.shutdown();
 			this.singleThread.awaitTermination(5, TimeUnit.SECONDS);
 		} catch (Exception e) {
-			System.out.println(e);
+			AnalysysLogger.print(e.getMessage());
 			this.singleThread = null;
 		}
 	}
