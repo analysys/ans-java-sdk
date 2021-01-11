@@ -1,6 +1,5 @@
 package cn.com.analysys.javasdk;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,28 +54,16 @@ public class SyncCollecter implements Collecter {
 				AnalysysLogger.print(String.format("Send message to server: %s data: %s", serverUrl, jsonData));
 			}
 			String retMsg = this.sender.send(headParam, jsonData);
-			if(debug){
+			if(debug && retMsg != null){
 				AnalysysLogger.print(String.format("Send message success,response: %s", retMsg));
 			}
-			return true;
+			return retMsg != null;
 		} catch (JsonProcessingException e) {
 			AnalysysLogger.print("Json Serialization Fail: " + egMsgList);
 			if(interrupt){
 				throw new RuntimeException("Json Serialize Error: ", e);
 			} else {
 				AnalysysLogger.print("Json Serialize Error: " + e);
-			}
-		} catch (AnalysysException e) {
-			if(interrupt)
-				throw new RuntimeException("Upload Data Error: ", e);
-			else {
-				AnalysysLogger.print("Upload Data Error: " + e);
-			}
-		} catch (IOException e) {
-			if(interrupt)
-				throw new RuntimeException("Connect Server Error: ", e);
-			else {
-				AnalysysLogger.print("Connect Server Error: " + e);
 			}
 		} catch (Exception e) {
 			AnalysysLogger.print("Sync Send Data Error: " + e);

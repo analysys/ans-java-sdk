@@ -72,29 +72,31 @@ public class MessageSender {
 			try {
 				message = AnalysysEncoder.uncompress(AnalysysEncoder.decode(message));
 			} catch (Exception e) {}
-			printLog(message, jsonData);
-			if (httpStatusCode >= minCode && httpStatusCode < maxCode) {
-				if(message != null && message.contains("\"code\":200")){
-					return message;
-				} else {
-					throw new AnalysysException(message);
-				}
-			} else {
-				throw new AnalysysException(message);
+			if(message != null && !success(message)){
+				AnalysysLogger.print("Data Upload Fails: " + jsonData);
+				AnalysysLogger.print("Data Upload FailsReason: " + message);
 			}
-		} catch (Exception e) {
+			if (httpStatusCode >= minCode && httpStatusCode < maxCode) {
+				if(message != null && success(message)){
+					return message;
+				}
+			}
+			return null;
+		} catch (Throwable e) {
 			AnalysysLogger.print("Data Upload Fail: " + jsonData);
-			throw e;
+			AnalysysLogger.print("Data Upload FailReason: " + e.getMessage());
+			return null;
 		} finally {
 			if(response != null)
+				try {
 				response.close();
+					response = null;
+				} catch (Exception e2) {}
 		}
 	}
 	
-	private void printLog(String message, String jsonData) {
-		if(message != null && !message.contains("\"code\":200")){
-			AnalysysLogger.print("Data Upload Fail: " + jsonData);
-		}
+	private boolean success(String message){
+		return message.toLowerCase().replaceAll(" ", "").contains("\"code\":200");
     }
 	
 	private static class SingletonClassInstance {

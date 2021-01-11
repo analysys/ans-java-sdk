@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Analysys Java SDK
  */
 public class AnalysysJavaSdk {
-	private final String SDK_VERSION = "4.1.2";
+	private final String SDK_VERSION = "4.1.3";
 	private final Collecter collecter;
 	private final String appId;
 	private final Map<String, Object> egBaseProperties;
@@ -319,8 +319,8 @@ public class AnalysysJavaSdk {
 		}
 		newProperties.putAll(egBaseProperties);
 		newProperties.put("$is_login", isLogin);
-		String newPlatForm = getPlatForm(platform);
-		if(newPlatForm != null && newPlatForm.trim().length() > 0){
+		String newPlatForm = getPlatForm(platform, eventName.startsWith(profile));
+		if(newPlatForm != null){
 			newProperties.put("$platform", newPlatForm);
 		}
 		eventMap.put("xcontext", newProperties);
@@ -332,19 +332,27 @@ public class AnalysysJavaSdk {
 		return ret;
 	}
 	
-	private String getPlatForm(String platform){
+	private String getPlatForm(String platform, Boolean isProfile){
     	if(PlatForm.JS.getValue().equalsIgnoreCase(platform)) {return PlatForm.JS.getValue();}
     	if(PlatForm.WeChat.getValue().equalsIgnoreCase(platform)) {return PlatForm.WeChat.getValue();}
     	if(PlatForm.Android.getValue().equalsIgnoreCase(platform)) {return PlatForm.Android.getValue();}
     	if(PlatForm.iOS.getValue().equalsIgnoreCase(platform)) {return PlatForm.iOS.getValue();}
+    	if(isDebug()){
     	AnalysysLogger.print(String.format("Warning: param platform:%s  Your input are not:iOS/Android/JS/WeChat.", platform == null ? "" : platform));
+    	}
     	if(PlatForm.Java.getValue().equalsIgnoreCase(platform)) {return PlatForm.Java.getValue();}
     	if(PlatForm.python.getValue().equalsIgnoreCase(platform)) {return PlatForm.python.getValue();}
     	if(PlatForm.Node.getValue().equalsIgnoreCase(platform)) {return PlatForm.Node.getValue();}
     	if(PlatForm.PHP.getValue().equalsIgnoreCase(platform)) {return PlatForm.PHP.getValue();}
     	if(platform == null || platform.trim().length() == 0) {
+    		if(isDebug()){
     		AnalysysLogger.print(String.format("Warning: param platform is empty, will use default value: %s.", PlatForm.Java.getValue()));
+    		}
+    		if(isProfile){
+    			return "";
+    		} else {
     		return PlatForm.Java.getValue();
+    	}
     	}
     	return platform;
     }
