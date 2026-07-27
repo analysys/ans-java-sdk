@@ -1,14 +1,19 @@
 package cn.com.analysys.javasdk;
 
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.util.Timeout;
+
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+
 
 /**
  * @author admin
@@ -56,19 +61,17 @@ public class MessageSender {
 			}
 			StringEntity egRequest = null;
 			if(isEncode){
-				egRequest = new StringEntity(AnalysysEncoder.encode(AnalysysEncoder.compress(jsonData)));
+				egRequest = new StringEntity(AnalysysEncoder.encode(AnalysysEncoder.compress(jsonData)), StandardCharsets.UTF_8);
 			} else {
-				egRequest = new StringEntity(jsonData);
-				egRequest.setContentType("application/json");
+				egRequest = new StringEntity(jsonData, ContentType.APPLICATION_JSON.withCharset(StandardCharsets.UTF_8));
 			}
-			egRequest.setContentEncoding("UTF-8");
 	        egHttpPost.setEntity(egRequest);
 	        egHttpPost.setConfig(getHttpConfig());
 	        response = httpclient.execute(egHttpPost);
-			int httpStatusCode = response.getStatusLine().getStatusCode();
+			int httpStatusCode = response.getCode();
 			int minCode = 200;
 			int maxCode = 300;
-			String message = EntityUtils.toString(response.getEntity(), "utf-8");
+			String message = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 			try {
 				message = AnalysysEncoder.uncompress(AnalysysEncoder.decode(message));
 			} catch (Exception e) {}
@@ -112,7 +115,11 @@ public class MessageSender {
     }
     
     private RequestConfig getHttpConfig() {
-    	RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(20000).setConnectTimeout(20000).build();
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setConnectionRequestTimeout(Timeout.ofMilliseconds(20000))  // 从连接池获取连接的超时
+				.setConnectTimeout(Timeout.ofMilliseconds(20000))           // 建立连接的超时
+				.setResponseTimeout(Timeout.ofMilliseconds(20000))          // 等待响应的超时
+				.build();
     	return requestConfig;
     }
 }
